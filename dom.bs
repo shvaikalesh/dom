@@ -2203,6 +2203,36 @@ steps:
  <li><p>If <var>slot</var> is non-null, then run <a>assign slotables</a> for <var>slot</var>.
 </ol>
 
+<p>To <dfn noexport>update slots</dfn>, given <var>removedNodes</var>, <var>parent</var>, and
+<var>addedNodes</var>, run these steps:
+
+<ol>
+ <li>
+  <p>For each <var>removedNode</var> in <var>removedNodes</var>:
+
+  <ol>
+   <li><p>If <var>removedNode</var> is <a for=slotable>assigned</a>, then run
+   <a>assign slotables</a> for <var>removedNode</var>'s <a>assigned slot</a>.
+
+   <li><p>If <var>removedNode</var> has an <a>inclusive descendant</a> that is a <a>slot</a>, then
+   run <a>assign slotables for a tree</a> with <var>removedNode</var>.
+  </ol>
+
+ <li><p>If <var>parent</var>'s <a for=tree>root</a> is a <a for=/>shadow root</a> and
+ <var>parent</var> is a <a>slot</a> whose <a for=slot>assigned nodes</a> is the empty list, then run
+ <a>signal a slot change</a> for <var>parent</var>.
+
+ <li><p>Run <a>assign slotables for a tree</a> with <var>parent</var>'s <a for=tree>root</a>.
+
+ <li>
+  <p>For each <var>addedNode</var> in <var>addedNodes</var>:
+
+  <ol>
+   <li><p>If <var>parent</var> is a <a for=Element>shadow host</a> and <var>addedNode</var> is a
+   <a>slotable</a>, then <a>assign a slot</a> for <var>addedNode</var>.
+  </ol>
+</ol>
+
 <h5 id=signaling-slot-change>Signaling slot change</h5>
 
 <p>Each <a>unit of related similar-origin browsing contexts</a> has a
@@ -2382,17 +2412,11 @@ before a <var>child</var>, with an optional <i>suppress observers flag</i>, run 
    <li><p>Otherwise, <a for=set>insert</a> <var>node</var> into <var>parent</var>'s
    <a for=tree>children</a> before <var>child</var>'s <a for=tree>index</a>.
 
-   <li><p>If <var>parent</var> is a <a for=Element>shadow host</a> and <var>node</var> is a
-   <a>slotable</a>, then <a>assign a slot</a> for <var>node</var>.
-
    <li>If <var>node</var> is a {{Text}} node, run the <a>child text content change steps</a> for
    <var>parent</var>.
 
-   <li><p>If <var>parent</var>'s <a for=tree>root</a> is a <a for=/>shadow root</a>, and
-   <var>parent</var> is a <a>slot</a> whose <a for=slot>assigned nodes</a> is the empty list,
-   then run <a>signal a slot change</a> for <var>parent</var>.
-
-   <li><p>Run <a>assign slotables for a tree</a> with <var>node</var>'s <a for=tree>root</a>.
+   <li><p>If the <i>suppress observers flag</i> is unset, then <a>update slots</a> with « »,
+   <var>parent</var>, and « <var>node</var> ».
 
    <li>
     <p>For each <a>shadow-including inclusive descendant</a> <var>inclusiveDescendant</var> of
@@ -2422,7 +2446,7 @@ before a <var>child</var>, with an optional <i>suppress observers flag</i>, run 
    </li>
   </ol>
 
- <li><p>If <i>suppress observers flag</i> is unset, then <a>queue a tree mutation record</a> for
+ <li><p>If the <i>suppress observers flag</i> is unset, then <a>queue a tree mutation record</a> for
  <var>parent</var> with <var>nodes</var>, « », <var>previousSibling</var>, and <var>child</var>.
 </ol>
 
@@ -2541,6 +2565,9 @@ within a <var>parent</var>, run these steps:
  <li><p><a for=/>Insert</a> <var>node</var> into <var>parent</var> before <var>reference child</var>
  with the <i>suppress observers flag</i> set.
 
+ <li><p><a>Update slots</a> with « <var>removedNodes</var> », <var>parent</var>, and
+ « <var>nodes</var> ».
+
  <li><p><a>Queue a tree mutation record</a> for <var>parent</var> with <var>nodes</var>,
  <var>removedNodes</var>, <var>previousSibling</var>, and <var>reference child</var>.
 
@@ -2573,6 +2600,9 @@ To <dfn export for=Node id=concept-node-replace-all>replace all</dfn> with a
 
  <li><p>If <var>node</var> is not null, then <a for=/>insert</a> <var>node</var> into
  <var>parent</var> before null with the <i>suppress observers flag</i> set.
+
+ <li><p>If the <i>suppress observers flag</i> is unset, then <a>update slots</a> with
+ « <var>removedNodes</var> », <var>parent</var>, and « <var>addedNodes</var> ».
 
  <li><p><a>Queue a tree mutation record</a> for <var>parent</var> with <var>addedNodes</var>,
  <var>removedNodes</var>, null, and null.
@@ -2634,20 +2664,8 @@ with an optional <i>suppress observers flag</i>, run these steps:
 
  <li><a for=set>Remove</a> <var>node</var> from its <var>parent</var>'s <a for=tree>children</a>.
 
- <li><p>If <var>node</var> is <a for=slotable>assigned</a>, then run <a>assign slotables</a> for
- <var>node</var>'s <a>assigned slot</a>.
-
- <li><p>If <var>parent</var>'s <a for=tree>root</a> is a <a for=/>shadow root</a>, and
- <var>parent</var> is a <a>slot</a> whose <a for=slot>assigned nodes</a> is the empty list,
- then run <a>signal a slot change</a> for <var>parent</var>.
-
- <li><p>If <var>node</var> has an <a>inclusive descendant</a> that is a <a>slot</a>, then:
-
-  <ol>
-   <li><p>Run <a>assign slotables for a tree</a> with <var>parent</var>'s <a for=tree>root</a>.
-
-   <li><p>Run <a>assign slotables for a tree</a> with <var>node</var>.
-  </ol>
+ <li><p>If the <i>suppress observers flag</i> is unset, then <a>update slots</a> with
+ « <var>node</var> », <var>parent</var>, and « ».
 
  <li><p>Run the <a>removing steps</a> with <var>node</var> and <var>parent</var>.
 
@@ -2683,7 +2701,7 @@ with an optional <i>suppress observers flag</i>, run these steps:
  <a for="transient registered observer">source</a> is <var>registered</var> to <var>node</var>'s
  <a>registered observer list</a>.
 
- <li><p>If <i>suppress observers flag</i> is unset, then <a>queue a tree mutation record</a> for
+ <li><p>If the <i>suppress observers flag</i> is unset, then <a>queue a tree mutation record</a> for
  <var>parent</var> with « », « <var>node</var> », <var>oldPreviousSibling</var>, and
  <var>oldNextSibling</var>.
 
